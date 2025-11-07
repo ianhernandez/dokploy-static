@@ -1,0 +1,20 @@
+services:
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    restart: always
+    expose:
+      - 3000
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend-app.rule=Host(`your-domain.com`)"
+      - "traefik.http.routers.frontend-app.entrypoints=websecure"
+      - "traefik.http.routers.frontend-app.tls.certResolver=letsencrypt"
+      - "traefik.http.services.frontend-app.loadbalancer.server.port=3000"
+
+networks:
+  dokploy-network:
+    external: true
