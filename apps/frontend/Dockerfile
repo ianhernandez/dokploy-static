@@ -12,17 +12,20 @@ COPY . .
 ENV NODE_ENV=production
 RUN pnpm run build
 
-FROM base AS production
-WORKDIR /app
-ENV NODE_ENV=production
+FROM nginx:alpine AS production
 
-# Install serve to run the production build
-RUN pnpm add -g serve
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy only the built files
-COPY --from=build /app/dist ./dist
+# Copy built files from build stage
+COPY --from=build /app/dist /usr/share/nginx/html
 
+# Expose port 3000 (matching Dokploy configuration)
 EXPOSE 3000
 
-# Serve the production build
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Start nginx in foreground
+CMD ["nginx", "-g", "daemon off;"]

@@ -78,11 +78,24 @@ labels:
 ## Dockerfile Details
 
 The production Dockerfile uses:
-- **Node 22 Alpine**: Lightweight base image
-- **Multi-stage build**: Optimizes image size
-- **pnpm**: Fast, efficient package manager
-- **serve**: Production-ready static file server
-- **Port 3000**: Serves the built React application
+- **Multi-stage build**: Optimizes image size by separating build and runtime stages
+- **Build Stage (Node 22 Alpine)**: Builds the React app with pnpm
+- **Production Stage (nginx Alpine)**: Ultra-lightweight production server
+- **nginx**: Industry-standard, high-performance web server
+- **Port 3000**: Configured to match Dokploy's expected port
+- **Built-in health checks**: Automatic container health monitoring at `/health` endpoint
+
+### Why nginx over serve?
+
+1. **Performance**: nginx is significantly faster and more efficient at serving static files
+2. **Production-Ready**: Battle-tested in production environments worldwide
+3. **Advanced Features**:
+   - Gzip compression for faster load times
+   - Security headers (X-Frame-Options, X-Content-Type-Options, etc.)
+   - Aggressive caching for static assets (1 year cache with immutable flag)
+   - Client-side routing support (for React Router, etc.)
+4. **Resource Efficient**: Lower memory footprint than Node.js-based servers
+5. **Health Monitoring**: Built-in health check endpoint at `/health`
 
 ## Monitoring and Logs
 
